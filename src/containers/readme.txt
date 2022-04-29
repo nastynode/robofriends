@@ -1,0 +1,1 @@
+'smart' components with state, lifecycle hooks etc

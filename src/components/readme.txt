@@ -1,0 +1,1 @@
+'dumb' components ie pure functions that receive just props
