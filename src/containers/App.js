@@ -5,56 +5,59 @@ import SearchBox from '../components/SearchBox'
 import './App.css'
 import Scroll from '../components/Scroll'
 import ErrorBoundary from '../components/ErrorBoundary'
+import { useEffect, useState } from 'react'
 
-class App extends React.Component{
-    constructor(){
-        super() //calls the constructor of component
-        this.state= { //props cannot change onve passed to components, but state can change and pass that to components as props
-            robots: [],
-            searchfield: ''
-        }
-    }
-
-    componentDidMount(){ //lifecycle hook that is part of react so we dont need arrow
+/**
+ * Changed to function to utilize react hooks
+ */
+function App(){
+    
+    //with hooks we do state this way instead of class extends react.component with constructor that declares state
+    const [robots, setRobots] = useState([])
+    const [searchfield, setSeacrchfield] = useState('')
+    const [count, setCount] = useState(0)
+    
+    useEffect(()=>{
         fetch('https://jsonplaceholder.typicode.com/users') //fetch is a method that comes with all browsers
             .then(response => {
                 return response.json()
             })
             .then(users =>{
-                this.setState({ robots: users})
-            })   
-    }
+                setRobots(users)
+            }) 
+            console.log(count) //this isnt great because now fetch() is called every time count changes as well
 
-    onSearchChange = (event) =>{ //whenever making your own function need to make = arrow function
+    }, [count]) //second useEffect param tells useEffect what conditions trigger it, empty array is gonna mean just run first time this component mounts
+
+
+    const onSearchChange = (event) =>{ //whenever making your own function need to make = arrow function
         //child SearchBox triggering this function and passing it event, this function needs
         //to update state so that CardList can access it. This is done with setState
-        this.setState({ searchfield: event.target.value })
+        setSeacrchfield(event.target.value)
         
     }
 
-    render(){
-        const { robots, searchfield} = this.state //deconstruct so you dont need to this.state all the time
-        const filteredRobots = robots.filter(robot => {
-            return robot.name.toLowerCase().includes(searchfield.toLowerCase())
-        })
-
-        //if !robots.length return h1 else return div 
-        return !robots.length ? <h1>Loading</h1> : 
-            (
-            <div className='tc'>
-                <h1 className='f2'>Robofriends</h1>
-                <SearchBox searchChange={this.onSearchChange}/>
-                <Scroll>
-                    <ErrorBoundary>
-                        <CardList robots={filteredRobots}/>
-                    </ErrorBoundary>
-                </Scroll>
-                
-            </div>
-            )
+    const filteredRobots = robots.filter(robot => {
+        return robot.name.toLowerCase().includes(searchfield.toLowerCase())
+    })
+    //if !robots.length return h1 else return div 
+    return !robots.length ? <h1>Loading</h1> : 
+        (
+        <div className='tc'>
+            <h1 className='f2'>Robofriends</h1>
+            <button onClick={()=>setCount(count + 1)}>Click Me {count}</button>
+            <SearchBox searchChange={onSearchChange}/>
+            <Scroll>
+                <ErrorBoundary>
+                    <CardList robots={filteredRobots}/>
+                </ErrorBoundary>
+            </Scroll>
+            
+        </div>
+        )
 
         
-    }
+    
     
 }
 
